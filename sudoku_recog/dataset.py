@@ -62,3 +62,31 @@ class PairedDatImageDataset(Dataset):
             img = self.transform(img)
 
         return dat, img
+    
+
+    def read_sudoku_dat(path):
+        """
+        Parse a .dat file with:
+        line 1: phone model
+        line 2: resolution / image info
+        lines 3-11: 9x9 sudoku grid
+        """
+        with open(path, "r", encoding="utf-8") as f:
+            lines = [line.strip() for line in f if line.strip()]
+
+        if len(lines) < 11:
+            raise ValueError(f"Invalid .dat file (too few lines): {path}")
+
+        phone_model = lines[0]
+        image_info = lines[1]
+
+        grid = []
+        for i, line in enumerate(lines[2:11], start=3):
+            row = list(map(int, line.split()))
+            if len(row) != 9:
+                raise ValueError(
+                    f"Invalid sudoku row length at line {i} in {path}"
+                )
+            grid.append(row)
+
+        return phone_model, image_info, grid
